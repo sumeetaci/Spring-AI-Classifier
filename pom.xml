@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+       <!--  <version>3.4.5</version> -->
+        <version>3.5.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+	
+	<groupId>com.fashionAI</groupId>
+    <artifactId>spring-boot-ai-fashion</artifactId>
+    <version>1.0.0</version>
+
+    <name>spring-boot-ai-fashion</name>
+    <description>A simple Spring Boot app showing how to use Spring AI with clothes</description>
+
+    <properties>
+        <java.version>25</java.version>
+        <spring-ai.version>1.1.2</spring-ai.version>
+        <jackson.version>2.21.1</jackson.version>
+        <lucene.version>10.4.0</lucene.version>
+    </properties>
+    <repositories>
+    <repository>
+        <id>spring-milestones</id>
+        <name>Spring Milestones</name>
+        <url>https://repo.spring.io</url> <!-- Added /milestone -->
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+
+	
+    <dependencies>
+       <!-- This is for validating image uploaded file type-->
+        <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-core</artifactId>
+        <version>2.9.2</version>
+    </dependency>
+	 <!-- Spring AI Postgres Vector Store -->
+    <!-- <dependency>
+        <groupId>org.springframework.ai</groupId>
+    <artifactId>spring-ai-starter-vector-store-pgvector</artifactId>
+    </dependency> -->
+    <dependency>
+	    <groupId>org.springframework.ai</groupId>
+	    <artifactId>spring-ai-starter-mcp-server-webmvc</artifactId>
+	</dependency>
+
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-databind</artifactId>
+	</dependency>
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-annotations</artifactId>
+	    
+	</dependency>
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-core</artifactId>
+ 	</dependency>
+ 	
+ 	<dependency>
+    	<groupId>com.fasterxml.jackson.datatype</groupId>
+	    <artifactId>jackson-datatype-jsr310</artifactId>
+</dependency>
+    <!-- Calling external shell or python code using this library-->
+	<dependency>
+		  <groupId>org.zeroturnaround</groupId>
+		  <artifactId>zt-exec</artifactId>
+		  <version>1.12</version>
+		</dependency>
+	<!-- Postgres Driver -->
+     <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <scope>runtime</scope>
+    </dependency>  
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+        <!-- JJWT for Token handling (0.12.6) -->
+       <!--  <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
+        </dependency>
+	  -->
+	  <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-api</artifactId>
+        <version>0.11.5</version>
+    </dependency>
+    <!-- Implementation: Needed at runtime to actually do the work -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-impl</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+    <!-- JSON Serializer: Needed to handle JSON (Jackson is standard for Spring) -->
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt-jackson</artifactId>
+        <version>0.11.5</version>
+        <scope>runtime</scope>
+    </dependency>
+    
+	<dependency>
+    <groupId>org.hibernate.orm</groupId>
+    <artifactId>hibernate-vector</artifactId>
+    <version>6.4.4.Final</version>
+</dependency>    
+            <dependency>
+    <groupId>org.springframework.security</groupId>
+    <artifactId>spring-security-oauth2-client</artifactId>
+</dependency>
+
+            <dependency>
+            	<groupId>org.springframework.boot</groupId>
+            	<artifactId>
+            		spring-boot-configuration-processor
+            	</artifactId>
+            	<optional>true</optional>
+            </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+    	<resources>
+        <resource>
+            <directory>src/main/resources</directory>
+            <includes>
+                <include>**/*.drl</include>
+                <include>**/*.xlsx</include> <!-- if using decision tables -->
+                <include>**/*.*</include>
+            </includes>
+        </resource>
+    </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.15.0</version>
+			    <configuration>
+			        <parameters>true</parameters>
+			       <release>25</release> 
+			    </configuration>
+			</plugin>
+			
+			
+		
+		
+        </plugins>
+    </build>
+
+</project>

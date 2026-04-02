@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Fashion AI</title>
+    <!-- <script src="https://unpkg.com"></script> -->
+    <script th:src="@{/js/htmx.min.js}"></script>
+</head>
+<body>
+    <main class="container">
+    <h1>Fashion AI Manager</h1>
+
+    <!-- 1. IMAGE UPLOAD SECTION -->
+    <section>
+        <form hx-post="/ui/upload" 
+              hx-target="#upload-response" 
+              hx-include="closest form"
+              hx-encoding="multipart/form-data">
+            <label for="file">Upload Image for Analysis:</label>
+            <input type="file" name="file" accept="image/*" required>
+            <!-- <button type="submit">Upload & Process</button>  -->
+            <button type="button" 
+                    hx-post="/ui/upload" 
+                    hx-target="#upload-response">
+                Upload & Process
+            </button>
+        </form>
+        <div id="upload-response"></div> <!-- Results appear here -->
+    </section>
+
+    <hr>
+
+    <!-- 2. GALLERY SECTION -->
+    <section>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>Kaggle Sample Gallery</h2>
+            <button hx-get="/ui/gallery" hx-target="#gallery-section" class="outline">
+                Refresh Samples
+            </button>
+        </div>
+        
+        <!-- This is where individual classification text appears when you click a gallery item -->
+        <div id="classification-result" style="margin-bottom: 10px; font-weight: bold; color: #007bff;"></div>
+        
+        <div id="gallery-section">
+            <p>Click "Refresh" to see downloaded images...</p>
+        </div>
+    </section>
+
+    <!-- 3. TAG GENERATION (EXTRA) -->
+    <section>
+        <button hx-get="/ui/generate-tags" hx-target="#tag-response" class="contrast">
+            Generate Random Tags
+        </button>
+        <div id="tag-response" style="margin-top: 10px;"></div>
+    </section>
+</main>
+</body>
+</html>

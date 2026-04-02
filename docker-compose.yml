@@ -1,0 +1,79 @@
+services:
+  fastapi-service:
+    build: ./fast-api-app
+    user: "1000:1000" # Set to your host user's UID:GID
+    env_file: .env
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOGGING_FILE_NAME=/app/logs/combined.log
+      - KAGGLE_USERNAME=${KAGGLE_USERNAME}
+      - KAGGLE_KEY=${KAGGLE_API_TOKEN}
+    volumes:
+      - ./shared-logs:/app/logs
+      - ./shared-data:/data # Mapping the "pointer" directory
+      - ./host-prompts:/data/prompts # Add this so both see the same files
+    networks:
+      - backend-net
+
+  spring-service:
+    build: .
+    user: "1000:1000" # Set to your host user's UID:GID
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      - FASTAPI_URL=http://fastapi-service:8000
+      - LOGGING_FILE_NAME=/app/logs/combined.log
+      - API_PROMPT_HARDOCDED"Generate a comma-separated list of 5-10 descriptive tags for this image. Include objects, colors, and the overall mood. Return only the tags."
+      - SHARED_DATA_PATH=/data
+      - APP_PROMPT_DIR=/data/prompts
+      - APP_PROMPT_RESPONSE=out_response.json
+      - DROOLS_PATH=/data/rules/AIModelMetaData.drl
+      - SPRING_AI_OPENAI_API_KEY=${OPENAI_API_KEY} # Map from your .env
+      - SPRING_AI_OLLAMA_BASE_URL=http://host.docker.internal:11434 # Standard Ollama URL
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/fashionDB
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+    volumes:
+      - ./shared-logs:/app/logs
+      - ./shared-data:/data
+      - ./src/main/resources/com/restai/config:/data/rules # Maps host folder to container folder
+      - ./host-prompts:/data/prompts
+    depends_on:
+      fastapi-service:
+        condition: service_started
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - backend-net
+  postgres-db:
+    image: postgres:15-alpine
+    networks:
+      - backend-net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d fashionDB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fashionDB
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+
+
+networks:
+  backend-net:
+    driver: bridge

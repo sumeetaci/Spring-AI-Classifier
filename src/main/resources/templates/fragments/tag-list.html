@@ -1,0 +1,11 @@
+<div id="response" class="fade-in">
+    <h3>Generated Tags:</h3>
+    <ul>
+        <!-- Thymeleaf loop through the tags list -->
+        <li th:each="tag : ${tags}" 
+            th:text="${tag}" 
+            style="display: inline-block; background: #eee; margin: 5px; padding: 5px 10px; border-radius: 15px;">
+            Tag Placeholder
+        </li>
+    </ul>
+</div>
