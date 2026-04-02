@@ -1,6 +1,6 @@
 # Spring AI Fashion Tag Application
 This application can use REST or UI.
-Initially 15 images are downloaded from kaggle db for sandbox. This is done in FastAPI in bootup and runs in background. It skips the download step if files are there. It assumes you have OpenAI key and Ollama downloaded and running in local and not in docker. Download Ollama model llama3.2-vision.
+Initially 15 images are downloaded from kaggle db for sandbox. This is done in FastAPI in bootup and runs in background. It skips the download step if files are there. It assumes you have OpenAI key and Ollama downloaded and running in local and not in docker. Download Ollama model llama3.2-vision. It first calls Ollama and fallback is OpenAI. OpenAI model testing TBD.
 Execution With REST: Let you create a user who can upload pictures. User is saved in db. User can login via username and password once and then API token is generated for further REST calls. Refer or call the script: sh create_user_and_make_calls.sh
 Execution with UI:
 1. Go to : http://localhost:8080/ui
