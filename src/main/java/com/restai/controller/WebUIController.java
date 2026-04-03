@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.restai.common.ControllerUtils;
+import com.restai.common.Utils;
+import com.restai.models.ClassificationResult;
 import com.restai.services.ImageService;
 
 @Controller
@@ -29,6 +32,15 @@ public class WebUIController {
 	
 	@Value("${fastapi.base-url}")
     private String fastApiBaseUrl;
+	
+	@Value("${app.prompt-dir}")
+	private String prompt_dir;
+	
+	@Value("${app.prompt-output-file}")
+	private String prompt_response_file;
+	
+	@Value("${app.prompt-query}") 
+	private String prompt_query;
 	
 	private final RestTemplate restTemplate;
 	WebUIController(ImageService imageService, RestTemplate restTemplate) {
@@ -58,10 +70,23 @@ public class WebUIController {
 	@PostMapping("/upload")
 	public String handleUpload(@RequestParam("file") MultipartFile file, Model model) {
 		logger.info("Received file upload: " + file.getOriginalFilename());
+		String username = "ANONYMUS"; // In a real app, get this from the authenticated session
+		ControllerUtils controllerUtils = new ControllerUtils();
 	    // 1. Process the file (e.g., save to /data/downloads)
 	    // 2. Add attributes for the UI
-	    model.addAttribute("message", "File uploaded successfully!");
-	    
+		try {
+			MultipartFile[] files = new MultipartFile[] {file}; // Wrap single file in an array for reuse of existing logic
+		String userDirPathString = controllerUtils.createUniqueDirectoryAndSetPermissions(username, prompt_dir,prompt_response_file );
+		controllerUtils.uploadFiles(files, userDirPathString);
+   	 	// String outputFilePath = Utils.resolvePath(userDirPathString, Utils.RESPONSE_PROMPT_FILE);
+        // File file = new File(outputFilePath);
+        // String message = query_message != null ? prompt_query.concat(query_message) : prompt_query;
+		model.addAttribute("message", "File uploaded successfully!");
+		}catch(Exception e) {
+			logger.error("Error processing file upload: " + e.getMessage());
+			model.addAttribute("message", "Failed to process the uploaded file.");
+			return "fragments/classification-results"; // Show error in the same fragment
+		}
 	    // 3. Return the fragment name
 	    return "fragments/classification-results"; 
 	}
@@ -80,9 +105,13 @@ public class WebUIController {
 	    String url = fastApiBaseUrl+"/classify?filename=" + filename;
 	    // String result = restTemplate.getForObject(url, String.class);
 	 // Extract as a Map to get the "result" key specifically
-	    Map<String, String> response = restTemplate.getForObject(url, Map.class); 
+	    // Map<String, String> response = restTemplate.getForObject(url, Map.class); 
+	    ClassificationResult data = restTemplate.getForObject(url, ClassificationResult.class);
+	    String responseText = data.getResult().getResponse();
 	    
-	    model.addAttribute("classification", response.get("result"));
+	    logger.info("Received classification result: " + responseText);
+	    // logger.info("Classifying image by provider: " + response.get("provider") + " with result: " + response.get("result"));
+	    model.addAttribute("classification", responseText);
 	    return "fragments/classification-results"; 
 	    
 	   //  model.addAttribute("classification", result);

@@ -1,0 +1,10 @@
+uvicorn
+pydantic 
+typing-extensions
+python-dateutil
+pyyaml
+python-json-logger
+fastapi[standard]
+semantic-router[openai]
+ollama
+kagglehub[pandas-datasets]
